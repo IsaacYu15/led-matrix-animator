@@ -2,20 +2,24 @@
 
 import { ModuleDetails } from "@/types";
 import { HiOutlineRefresh } from "react-icons/hi";
-
 import { useEffect, useState } from "react";
+
+import UpdateModuleModal from "./updateModuleModal";
+import useModules from "@/app/hooks/useModules";
 
 export default function ModuleManager(props: ModuleDetails) {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [updateModalActive, setUpdateModalActive] = useState<boolean>(false);
+  const {fetchModules, updateModule} = useModules();
 
-  const checkModuleConnection = async () => {
+  const checkModuleConnection = async (address: string) => {
     if (isLoading) return;
 
     setIsLoading(true);
 
     try {
-      const response = await fetch(`http://${props.address}/status`, {
+      const response = await fetch(`http://${address}/status`, {
         signal: AbortSignal.timeout(3000),
       });
 
@@ -28,12 +32,30 @@ export default function ModuleManager(props: ModuleDetails) {
     }
   };
 
+  const exitModule = () => {
+    setUpdateModalActive(false)
+    fetchModules();
+  }
+
   useEffect(() => {
-    checkModuleConnection();
+    checkModuleConnection(props.address);
   }, [props.address]);
 
   return (
-    <div className="bg-slate-100 p-6 rounded-2xl aspect-square w-1/3 flex flex-col justify-between">
+    <div
+      className="bg-slate-100 p-6 rounded-2xl aspect-square w-1/3 flex flex-col justify-between hover:bg-slate-200"
+      onClick={() => {
+        setUpdateModalActive(true);
+      }}
+    >
+      {updateModalActive && (
+        <UpdateModuleModal
+          updateModule={updateModule}
+          exitModule={exitModule}
+          details={props}
+        ></UpdateModuleModal>
+      )}
+
       <div>
         <h1 className="font-bold text-xl uppercase">{props.name}</h1>
         <h1 className="font-light">{props.address}</h1>
@@ -52,7 +74,7 @@ export default function ModuleManager(props: ModuleDetails) {
           <div />
         </div>
         <button
-          onClick={checkModuleConnection}
+          onClick={() => checkModuleConnection(props.address)}
           className={` ${isLoading ? "animate-spin" : ""} `}
         >
           <HiOutlineRefresh></HiOutlineRefresh>

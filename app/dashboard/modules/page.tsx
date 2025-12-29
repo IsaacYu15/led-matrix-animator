@@ -1,29 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import useModules from "../../hooks/useModules";
 
 import ModuleManager from "../../components/moduleManager/moduleManager";
 import { ModuleDetails } from "@/types";
 
 export default function Page() {
-  const [modules, setModules] = useState<ModuleDetails[]>([]);
+  const {modules, fetchModules} = useModules();
 
-  const getModules = async () => {
-    const response = await fetch("/api/ports");
-    const data = await response.json();
-
-    setModules(data as ModuleDetails[]);
-  };
-  
   useEffect(() => {
-    if (modules?.length == 0) {
-      getModules();
-    }
-  }, [modules]);
-
+    fetchModules();
+  }, [fetchModules])
+  
   return (
     <div>
-      {modules.map((module: ModuleDetails) => {
+      {modules?.map((module: ModuleDetails) => {
         return (
           <ModuleManager
             key={module.id}

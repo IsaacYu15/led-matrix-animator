@@ -37,19 +37,6 @@ export default function Home() {
     }
   };
 
-  const addPort = async (address: string) => {
-    const response = await fetch("/api/ports", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ address: address }),
-    });
-
-    const result = await response.json();
-    console.log("Saved device:", result);
-  };
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-zinc-950">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-16 px-8 bg-white dark:bg-black sm:items-start">
