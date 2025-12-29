@@ -23,7 +23,25 @@ export default function useModules() {
         id: details.id,
       }),
     });
+
+    console.log(response, details.name);
+  };
+  
+  const addModule = async (details: ModuleDetails) => {
+    const response = await fetch("/api/modules", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        address: details.address,
+        name: details.name,
+        id: details.id,
+      }),
+    });
+
+    console.log(response, details.name);
   };
 
-  return { modules, fetchModules, updateModule };
+  return { modules, fetchModules, updateModule, addModule};
 }

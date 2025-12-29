@@ -1,17 +1,21 @@
 "use client";
 
-import { ModuleDetails } from "@/types";
+import { FormAction, ModuleDetails } from "@/types";
 import { HiOutlineRefresh } from "react-icons/hi";
 import { useEffect, useState } from "react";
 
-import UpdateModuleModal from "./updateModuleModal";
+import ModuleModal from "./moduleModal";
 import useModules from "@/app/hooks/useModules";
 
-export default function ModuleManager(props: ModuleDetails) {
+interface ModuleManagerProps extends ModuleDetails {
+  mode: FormAction;
+}
+
+export default function ModuleManager(props: ModuleManagerProps) {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [updateModalActive, setUpdateModalActive] = useState<boolean>(false);
-  const {fetchModules, updateModule} = useModules();
+  const [moduleModalActive, setModuleModalActive] = useState<boolean>(false);
+  const { fetchModules, updateModule, addModule } = useModules();
 
   const checkModuleConnection = async (address: string) => {
     if (isLoading) return;
@@ -32,10 +36,20 @@ export default function ModuleManager(props: ModuleDetails) {
     }
   };
 
+  const submitModal = async (module: ModuleDetails) => {
+    if (props.mode === FormAction.UPDATE) {
+      return updateModule(module);
+    } else if (props.mode === FormAction.ADD) {
+      return addModule(module);
+    }
+
+    return ()=>{};
+  };
+
   const exitModule = () => {
-    setUpdateModalActive(false)
+    setModuleModalActive(false);
     fetchModules();
-  }
+  };
 
   useEffect(() => {
     checkModuleConnection(props.address);
@@ -43,17 +57,17 @@ export default function ModuleManager(props: ModuleDetails) {
 
   return (
     <div
-      className="bg-slate-100 p-6 rounded-2xl aspect-square w-1/3 flex flex-col justify-between hover:bg-slate-200"
+      className="bg-slate-100 p-6 rounded-2xl aspect-square flex flex-col justify-between hover:bg-slate-200"
       onClick={() => {
-        setUpdateModalActive(true);
+        setModuleModalActive(true);
       }}
     >
-      {updateModalActive && (
-        <UpdateModuleModal
-          updateModule={updateModule}
+      {moduleModalActive && (
+        <ModuleModal
+          onSubmit={submitModal}
           exitModule={exitModule}
           details={props}
-        ></UpdateModuleModal>
+        ></ModuleModal>
       )}
 
       <div>

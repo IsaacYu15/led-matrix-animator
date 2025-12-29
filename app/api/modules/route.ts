@@ -27,15 +27,15 @@ export async function PUT(request: Request) {
   }
 }
 
-// export async function POST(request: Request) {
-//   try {
-//     const { address } = await request.json();
-//     const result = await query(
-//       'INSERT INTO modules (address) VALUES ($1) RETURNING *',
-//       [address]
-//     );
-//     return NextResponse.json(result.rows[0], { status: 201 });
-//   } catch (error) {
-//     return NextResponse.json({ error: 'Failed to Add New Module' }, { status: 400 });
-//   }
-// }
+export async function POST(request: Request) {
+  try {
+    const { address, name } = await request.json();
+    const result = await query(
+      'INSERT INTO modules (address, name) VALUES ($1, $2) RETURNING *',
+      [address, name]
+    );
+    return NextResponse.json(result.rows[0], { status: 201 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to Add New Module' }, { status: 400 });
+  }
+}

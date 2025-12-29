@@ -1,29 +1,30 @@
-import { ModuleDetails } from "@/types";
 import { useState } from "react";
 
-interface UpdateModuleModalProps {
-  updateModule: (details: ModuleDetails) => Promise<void>;
+import { ModuleDetails } from "@/types";
+import { HiX } from "react-icons/hi";
+
+interface ModuleModalProps {
+  onSubmit: (module: ModuleDetails) => void;
   exitModule: () => void;
   details: ModuleDetails;
 }
 
-export default function UpdateModuleModal(props: UpdateModuleModalProps) {
+export default function ModuleModal(props: ModuleModalProps) {
   const [name, setName] = useState(props.details.name);
   const [address, setAddress] = useState(props.details.address);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      await props.updateModule({
-        id: props.details.id, 
-        name: name, 
-        address: address, 
+      await props.onSubmit({
+        id: props.details.id,
+        name: name,
+        address: address,
       });
-
-      props.exitModule(); 
+      props.exitModule();
     } catch (error) {
       console.error("Save failed:", error);
     } finally {
@@ -32,8 +33,9 @@ export default function UpdateModuleModal(props: UpdateModuleModalProps) {
   };
 
   return (
-    <div className="absolute top-0 left-0 w-screen h-screen bg-black/50 flex flex-col items-center justify-center">
-      <div className="bg-slate-100 rounded-2xl p-4">
+    <div className="absolute top-0 left-0 w-screen h-screen bg-black/50 flex flex-col items-center justify-center z-50">
+      <div className="bg-slate-100 rounded-2xl p-4 relative">
+        <button className="absolute right-3" onClick={props.exitModule}><HiX></HiX></button>
         <form onSubmit={handleSave}>
           <div className="mb-5">
             <label className="block mb-2.5 text-sm font-medium text-heading">

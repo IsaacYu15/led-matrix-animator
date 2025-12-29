@@ -3,3 +3,8 @@ export interface ModuleDetails {
   name: string;
   address: string;
 }
+
+export enum FormAction {
+  UPDATE,
+  ADD
+}
