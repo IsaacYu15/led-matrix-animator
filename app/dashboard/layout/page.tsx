@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { tryParseInt } from "@/app/services/parse";
 import useComponents from "@/app/hooks/useComponents";
 import { ComponentDetails } from "@/types";
-import ComponentTile from "@/app/components/layout/componentTile";
+import ComponentTile from "./componentTile";
 
 export default function Page() {
   const [gridX, setGridX] = useState<number>(0);

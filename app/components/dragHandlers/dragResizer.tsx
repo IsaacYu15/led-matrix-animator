@@ -1,15 +1,15 @@
 "use client";
 import { ReactNode, useState } from "react";
 
-export interface DragHandlerProps {
+export interface DragResizerProps {
   minHeight: number;
   children: ReactNode;
 }
 
-export default function DragHandler(props: DragHandlerProps) {
-  const [timeLineHeight, setTimeLineHeight] = useState<number>(props.minHeight);
+export default function DragResizer(props: DragResizerProps) {
+  const [height, setHeight] = useState<number>(props.minHeight);
 
-  const handleTimeLineResize = (e?: React.MouseEvent) => {
+  const handleResize = (e?: React.MouseEvent) => {
     e?.preventDefault();
 
     const onMouseMove = (e?: MouseEvent) => {
@@ -18,7 +18,7 @@ export default function DragHandler(props: DragHandlerProps) {
         window.innerHeight - mouseHeight,
         props.minHeight
       );
-      setTimeLineHeight(newHeight);
+      setHeight(newHeight);
     };
 
     const onMouseUp = () => {
@@ -31,10 +31,10 @@ export default function DragHandler(props: DragHandlerProps) {
   };
 
   return (
-    <div className="relative pt-5" style={{ height: `${timeLineHeight}px` }}>
+    <div className="relative pt-5" style={{ height: `${height}px` }}>
       <div
         className="absolute top-2 right-1/2 translate-x-1/2 h-1.5 w-12 bg-slate-950/40 rounded-full"
-        onMouseDown={handleTimeLineResize}
+        onMouseDown={handleResize}
       ></div>
       {props.children}
     </div>

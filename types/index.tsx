@@ -12,6 +12,14 @@ export interface ComponentDetails {
   y: number;
 }
 
+export interface StateDetails {
+  id: number;
+  name: string;
+  animation_id: number;
+  x: number;
+  y: number;
+}
+
 export const emptyComponentDetails: ComponentDetails = {
   id: 0,
   type: "",
@@ -24,6 +32,10 @@ export interface AnimationEvent {
   module_id: number;
   delay: number;
   action: string;
+}
+
+export enum ComponentTypes {
+  SERVO,
 }
 
 export enum FormAction {

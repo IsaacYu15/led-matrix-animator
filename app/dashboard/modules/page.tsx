@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import useModules from "../../hooks/useModules";
 
-import ModuleManager from "../../components/moduleManager/moduleManager";
-import ModuleModal from "../../components/moduleManager/moduleModal";
+import ModuleManager from "./moduleManager";
+import ModuleModal from "./moduleModal";
 import { FormAction, ModuleDetails } from "@/types";
 
 export default function Page() {
@@ -19,7 +19,7 @@ export default function Page() {
   useEffect(() => {
     fetchModules();
   }, []);
-  
+
   return (
     <div className="flex flex-col gap-5">
       <button
@@ -30,7 +30,7 @@ export default function Page() {
       >
         Add Modules
       </button>
-      
+
       {moduleModalActive && (
         <ModuleModal
           onSubmit={addModule}

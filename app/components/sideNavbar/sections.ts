@@ -3,10 +3,9 @@ export interface NavSection {
   href: string;
 }
 
-const sections: NavSection[] = [
+export const NavSections: NavSection[] = [
   { name: "Home", href: "/dashboard" },
   { name: "Modules", href: "/dashboard/modules" },
   { name: "Layout", href: "/dashboard/layout" },
+  { name: "Animator", href: "/state-machine" },
 ];
-
-export default sections;

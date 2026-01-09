@@ -2,14 +2,14 @@
 
 import { usePathname } from "next/navigation";
 import NavButton from "./button";
-import NavSection from "./sections";
+import { NavSections, NavSection } from "./sections";
 
 export default function Navbar() {
   const pathName = usePathname();
 
   return (
     <nav className="flex flex-col gap-3 p-8 bg-slate-900 w-3xs">
-      {NavSection.map((section : NavSection, id : number) => {
+      {NavSections.map((section: NavSection, id: number) => {
         const isActive = pathName == section.href;
 
         return (
