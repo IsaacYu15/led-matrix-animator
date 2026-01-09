@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { HiCodeBracketSquare } from "react-icons/hi2";
 import useStateManager from "../hooks/useStatesManager";
 import State from "./state";
+import { ArrowHead } from "../../public/state-machine";
 
 export default function Page() {
   const { states, fetchStates, addState } = useStateManager();
@@ -16,7 +17,6 @@ export default function Page() {
   const createNewState = async () => {
     const centerX = Math.floor(window.innerWidth / 2);
     const centerY = Math.floor(window.innerHeight / 2);
-    console.log(centerX, centerY);
 
     await addState({
       id: 0,
@@ -36,6 +36,8 @@ export default function Page() {
           <HiCodeBracketSquare></HiCodeBracketSquare>
         </button>
       </div>
+
+      <ArrowHead></ArrowHead>
 
       {states?.map((state: StateDetails, i: number) => {
         return (
