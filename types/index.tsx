@@ -20,6 +20,13 @@ export interface StateDetails {
   y: number;
 }
 
+export interface TransitionDetails {
+  id: number;
+  from_id: number;
+  to_id: number;
+  condition: string;
+}
+
 export const emptyComponentDetails: ComponentDetails = {
   id: 0,
   type: "",
@@ -33,6 +40,11 @@ export interface AnimationEvent {
   delay: number;
   action: string;
 }
+
+export type Point = {
+  x: number;
+  y: number;
+};
 
 export enum ComponentTypes {
   SERVO,

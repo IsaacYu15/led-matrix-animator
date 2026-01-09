@@ -3,7 +3,7 @@ import { query } from "@/app/lib/db";
 
 export async function GET() {
   try {
-    const result = await query("SELECT * FROM states");
+    const result = await query("SELECT * FROM states ORDER BY id ASC");
     return NextResponse.json(result.rows);
   } catch (error) {
     console.error(error);

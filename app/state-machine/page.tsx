@@ -1,18 +1,24 @@
 "use client";
 
-import { StateDetails } from "@/types";
-import { useEffect } from "react";
+import { StateDetails, TransitionDetails } from "@/types";
+import { useEffect, useState } from "react";
 import { HiCodeBracketSquare } from "react-icons/hi2";
-import useStateManager from "../hooks/useStatesManager";
 import State from "./state";
-import { ArrowHead } from "../../public/state-machine";
+import Arrow from "./arrow";
+import useStateManager from "../hooks/useStatesManager";
+import useTransitionsManager from "../hooks/useTransitionsManager";
 
 export default function Page() {
-  const { states, fetchStates, addState } = useStateManager();
+  const { states, statesMap, fetchStates, addState } = useStateManager();
+  const { transitions, fetchTransitions, addTransitions } =
+    useTransitionsManager();
 
-  useEffect(() => {
+  const [fromId, setFromId] = useState<number | null>(null);
+
+  const onRefresh = () => {
     fetchStates();
-  }, []);
+    fetchTransitions();
+  };
 
   const createNewState = async () => {
     const centerX = Math.floor(window.innerWidth / 2);
@@ -26,8 +32,28 @@ export default function Page() {
       y: centerY,
     });
 
-    await fetchStates();
+    await onRefresh();
   };
+
+  const trackArrowState = async (id: number) => {
+    if (!fromId) {
+      setFromId(id);
+    } else {
+      await addTransitions({
+        id: 0,
+        from_id: fromId,
+        to_id: id,
+        condition: "",
+      });
+      setFromId(null);
+
+      await onRefresh();
+    }
+  };
+
+  useEffect(() => {
+    onRefresh();
+  }, []);
 
   return (
     <div className="w-screen h-screen bg-gray-50 relative bg-[radial-gradient(#D3D3D3_1px,transparent_0)] bg-[length:20px_20px]">
@@ -37,21 +63,34 @@ export default function Page() {
         </button>
       </div>
 
-      <ArrowHead></ArrowHead>
-
-      {states?.map((state: StateDetails, i: number) => {
+      {states?.map((state: StateDetails) => {
         return (
           <State
-            key={i}
+            key={state.id}
             id={state.id}
             animation_id={state.animation_id}
             name={state.name}
             x={state.x}
             y={state.y}
-            onRefresh={fetchStates}
+            onRefresh={onRefresh}
+            arrowClick={trackArrowState}
           ></State>
         );
       })}
+
+      {statesMap &&
+        transitions?.map((transition: TransitionDetails) => {
+          const from = statesMap.get(transition.from_id) ?? { x: 0, y: 0 };
+          const to = statesMap.get(transition.to_id) ?? { x: 0, y: 0 };
+
+          return (
+            <Arrow
+              key={transition.id}
+              from={{ x: from.x, y: from.y }}
+              to={{ x: to.x, y: to.y }}
+            ></Arrow>
+          );
+        })}
     </div>
   );
 }

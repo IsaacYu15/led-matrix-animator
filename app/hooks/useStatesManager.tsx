@@ -3,15 +3,23 @@ import { useState } from "react";
 
 export default function useStateManager() {
   const [states, setStates] = useState<StateDetails[]>([]);
+  const [statesMap, setStatesMap] = useState<Map<number, StateDetails>>();
 
   const fetchStates = async () => {
     const response = await fetch("/api/states");
-    const data = await response.json();
+    const data = (await response.json()) as StateDetails[];
+    setStates(data);
 
-    setStates(data as StateDetails[]);
-    console.log(data);
+    const tempMap = new Map<number, StateDetails>();
 
-    return data as StateDetails[];
+    data.forEach((value: StateDetails) => {
+      tempMap.set(value.id, value);
+    });
+
+    setStatesMap(tempMap);
+    console.log(tempMap);
+
+    return data;
   };
 
   const updateStates = async (details: StateDetails) => {
@@ -50,5 +58,5 @@ export default function useStateManager() {
     console.log(response, details.name);
   };
 
-  return { states, fetchStates, updateStates, addState };
+  return { states, statesMap, fetchStates, updateStates, addState };
 }
