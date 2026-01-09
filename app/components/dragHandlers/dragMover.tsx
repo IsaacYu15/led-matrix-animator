@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 
 export interface DragMoverProps {
   children: ReactNode;
@@ -10,6 +10,17 @@ export interface DragMoverProps {
 export default function DragMover(props: DragMoverProps) {
   const [x, setX] = useState<number>(props.x);
   const [y, setY] = useState<number>(props.y);
+  const [offX, setOffX] = useState<number>(0);
+  const [offY, setOffY] = useState<number>(0);
+  const container = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const offX = Math.floor((container.current?.offsetWidth ?? 0) / 2);
+    const offY = Math.floor((container.current?.offsetHeight ?? 0) / 2);
+
+    setOffX(offX);
+    setOffY(offY);
+  }, [props]);
 
   const handleMove = (e?: React.MouseEvent) => {
     e?.preventDefault();
@@ -34,8 +45,12 @@ export default function DragMover(props: DragMoverProps) {
 
   return (
     <div
+      ref={container}
       className="absolute"
-      style={{ top: `${y}px`, left: `${x}px` }}
+      style={{
+        top: `${y - offY}px`,
+        left: `${x - offX}px`,
+      }}
       onMouseDown={handleMove}
     >
       {props.children}
