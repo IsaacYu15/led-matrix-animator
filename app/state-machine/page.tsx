@@ -1,19 +1,34 @@
 "use client";
 
-import { StateDetails, TransitionDetails } from "@/types";
+import { Direction, StateDetails, TransitionDetails } from "@/types";
 import { useEffect, useState } from "react";
 import { HiCodeBracketSquare } from "react-icons/hi2";
 import State from "./state";
 import Arrow from "./arrow";
 import useStateManager from "../hooks/useStatesManager";
 import useTransitionsManager from "../hooks/useTransitionsManager";
+import DragResizer from "../components/dragHandlers/dragResizer";
+import { HORIZ_DRAGGABLE_SECTIONS } from "../constants/ui";
+import { tryParseInt } from "../services/parse";
 
 export default function Page() {
-  const { states, statesMap, fetchStates, addState } = useStateManager();
+  const {
+    states,
+    statesMap,
+    fetchStates,
+    addState,
+    updateStates,
+    deleteState,
+  } = useStateManager();
   const { transitions, fetchTransitions, addTransitions } =
     useTransitionsManager();
 
+  const [selectedState, setSelectedState] = useState<number | null>(null);
   const [fromId, setFromId] = useState<number | null>(null);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [name, setName] = useState<string>("");
+  const [animationId, setAnimationId] = useState<number>(0);
 
   const onRefresh = () => {
     fetchStates();
@@ -46,8 +61,43 @@ export default function Page() {
         condition: "",
       });
       setFromId(null);
-
       await onRefresh();
+    }
+  };
+
+  const openStatesViewer = (id: number) => {
+    if (id === selectedState) {
+      setSelectedState(null);
+      setName("");
+      setAnimationId(0);
+    } else {
+      setSelectedState(id);
+      const stateData = statesMap.get(id);
+      if (stateData) {
+        setName(stateData.name);
+        setAnimationId(stateData.animation_id);
+      }
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedState === null) return;
+
+    setIsSubmitting(true);
+    try {
+      await updateStates({
+        id: selectedState,
+        animation_id: animationId,
+        name: name,
+        x: statesMap?.get(selectedState)?.x || 0,
+        y: statesMap?.get(selectedState)?.y || 0,
+      });
+      await onRefresh();
+    } catch (error) {
+      console.error("Save failed:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -57,26 +107,93 @@ export default function Page() {
 
   return (
     <div className="w-screen h-screen bg-gray-50 relative bg-[radial-gradient(#D3D3D3_1px,transparent_0)] bg-[length:20px_20px]">
-      <div className="absolute bottom-5 right-1/2 translate-x-1/2 h-15 rounded-2xl drop-shadow-2xl bg-white w-1/3 flex flex-row justify-center items-center">
-        <button className="text-2xl" onClick={createNewState}>
-          <HiCodeBracketSquare></HiCodeBracketSquare>
+      {selectedState && statesMap && (
+        <DragResizer
+          minDim={HORIZ_DRAGGABLE_SECTIONS}
+          direction={Direction.RIGHT}
+        >
+          <div className="bg-white h-screen p-5 flex flex-col justify-between border-l border-slate-200 shadow-xl">
+            <form
+              id="state-editor-form"
+              onSubmit={handleSave}
+              className="flex flex-col"
+            >
+              <h2 className="text-xl font-bold mb-6 text-slate-800">
+                Edit State
+              </h2>
+
+              <div className="mb-5">
+                <label className="block mb-2.5 text-sm font-medium text-slate-600">
+                  Name
+                </label>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="border border-slate-300 text-slate-900 text-sm rounded-lg block w-full px-3 py-2.5"
+                  required
+                />
+              </div>
+
+              <div className="mb-5">
+                <label className="block mb-2.5 text-sm font-medium text-slate-600">
+                  Animation Id
+                </label>
+                <input
+                  type="number"
+                  value={animationId}
+                  onChange={(e) =>
+                    setAnimationId(tryParseInt(e.target.value) ?? 0)
+                  }
+                  className="border border-slate-300 text-slate-900 text-sm rounded-lg block w-full px-3 py-2.5"
+                  required
+                />
+              </div>
+            </form>
+
+            <div className="flex flex-row gap-3 pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                className="flex-1 bg-red-50 text-red-600 hover:bg-red-100 p-3 rounded-xl transition-colors font-medium"
+                onClick={() => {
+                  deleteState(selectedState);
+                  setSelectedState(null);
+                  onRefresh();
+                }}
+              >
+                Delete
+              </button>
+              <button
+                form="state-editor-form"
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 bg-slate-900 text-white p-3 rounded-xl disabled:opacity-50 hover:bg-slate-800 transition-colors font-medium"
+              >
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </DragResizer>
+      )}
+
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 h-12 rounded-2xl drop-shadow-2xl bg-white border border-slate-200 px-6 flex flex-row justify-center items-center z-40">
+        <button
+          className="text-3xl text-slate-700 hover:text-slate-900 transition-transform active:scale-90"
+          onClick={createNewState}
+          title="Add New State"
+        >
+          <HiCodeBracketSquare />
         </button>
       </div>
 
-      {states?.map((state: StateDetails) => {
-        return (
-          <State
-            key={state.id}
-            id={state.id}
-            animation_id={state.animation_id}
-            name={state.name}
-            x={state.x}
-            y={state.y}
-            onRefresh={onRefresh}
-            arrowClick={trackArrowState}
-          ></State>
-        );
-      })}
+      {states?.map((state: StateDetails) => (
+        <State
+          key={state.id}
+          {...state}
+          onRefresh={onRefresh}
+          onTransitionClick={trackArrowState}
+          onClick={openStatesViewer}
+        />
+      ))}
 
       {statesMap &&
         transitions?.map((transition: TransitionDetails) => {
@@ -88,7 +205,7 @@ export default function Page() {
               key={transition.id}
               from={{ x: from.x, y: from.y }}
               to={{ x: to.x, y: to.y }}
-            ></Arrow>
+            />
           );
         })}
     </div>

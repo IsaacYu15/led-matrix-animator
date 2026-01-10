@@ -5,7 +5,8 @@ import { useRef } from "react";
 
 export interface StateProps extends StateDetails {
   onRefresh: () => void;
-  arrowClick: (id: number) => void;
+  onTransitionClick: (id: number) => void;
+  onClick: (id: number) => void;
 }
 
 export default function State(props: StateProps) {
@@ -30,11 +31,16 @@ export default function State(props: StateProps) {
 
   return (
     <DragMover x={props.x} y={props.y} savePosition={handleSaveState}>
-      <div className="relative flex flex-row">
+      <div
+        className="relative flex flex-row"
+        onClick={() => {
+          props.onClick(props.id);
+        }}
+      >
         <button
           className="relative group w-5 h-auto"
           onClick={() => {
-            props.arrowClick(props.id);
+            props.onTransitionClick(props.id);
           }}
           onMouseDown={(e) => {
             e?.stopPropagation();

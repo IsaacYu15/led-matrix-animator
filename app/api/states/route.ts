@@ -46,3 +46,18 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const { id } = await request.json();
+    const result = await query("DELETE FROM states WHERE id = $1 RETURNING *", [
+      id,
+    ]);
+    return NextResponse.json(result.rows[0], { status: 201 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to Add New Module" },
+      { status: 400 }
+    );
+  }
+}

@@ -1,0 +1,1 @@
+export const HORIZ_DRAGGABLE_SECTIONS = 200;

@@ -3,7 +3,9 @@ import { useState } from "react";
 
 export default function useStateManager() {
   const [states, setStates] = useState<StateDetails[]>([]);
-  const [statesMap, setStatesMap] = useState<Map<number, StateDetails>>();
+  const [statesMap, setStatesMap] = useState<Map<number, StateDetails>>(
+    new Map()
+  );
 
   const fetchStates = async () => {
     const response = await fetch("/api/states");
@@ -17,7 +19,6 @@ export default function useStateManager() {
     });
 
     setStatesMap(tempMap);
-    console.log(tempMap);
 
     return data;
   };
@@ -58,5 +59,26 @@ export default function useStateManager() {
     console.log(response, details.name);
   };
 
-  return { states, statesMap, fetchStates, updateStates, addState };
+  const deleteState = async (id: number) => {
+    const response = await fetch("/api/states", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: id,
+      }),
+    });
+
+    console.log(response, id);
+  };
+
+  return {
+    states,
+    statesMap,
+    fetchStates,
+    updateStates,
+    addState,
+    deleteState,
+  };
 }
